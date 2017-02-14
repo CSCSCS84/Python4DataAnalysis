@@ -178,7 +178,126 @@ df = DataFrame({'left': result, 'right': result + 5},
 columns=pandas.Index(['left', 'right'], name='side'))
 print(df)
 print(df.unstack("state"))
+print()
 
 #Pivoting “long” to “wide” Format
 #long is a table with many rows, wide with many columns
 #use pivot method, see chapter for more
+
+
+#Data Transformation
+#Removing Duplicates
+
+#indicates whether each row is a duplicate or not:
+#data.duplicated()
+#
+#data.drop_duplicates()
+#data.drop_duplicates(['k1'])
+#Passing take_last=True will return the last one:
+
+#Transforming Data Using a Function or Mapping:
+
+data = DataFrame({'food': ['bacon', 'pulled pork', 'bacon', 'Pastrami',
+'corned beef', 'Bacon', 'pastrami', 'honey ham',
+'nova lox'],
+'ounces': [4, 3, 12, 6, 7.5, 8, 3, 5, 6]})
+
+meat_to_animal = {
+'bacon': 'pig',
+'pulled pork': 'pig',
+'pastrami': 'cow',
+'corned beef': 'cow',
+'honey ham': 'pig',
+'nova lox': 'salmon'
+}
+
+#Suppose you wanted to add a column indicating the type of animal that each food came
+#from
+
+print(data["food"].map(meat_to_animal))
+
+#problem: in data also Upper case letters
+data["animal"]=data["food"].map(str.lower).map(meat_to_animal)
+print(data)
+print()
+
+#Replacing Values
+#data.replace([-999, -1000], np.nan)
+
+#Renaming Axis Indexes
+#skipped chapter
+
+#Discretization and Binning
+
+#Suppose you have data about a group of people in a study, and you want to group them
+#into discrete age buckets:
+ages = [20, 22, 25, 27, 21, 23, 37, 31, 61, 45, 41, 32]
+bins = [18, 25, 35, 60, 100]
+#returns an object like [18,25], [18,25]... because first two entries in ages are betwenn 18-25
+cats=pandas.cut(ages,bins)
+print(cats)
+print(pandas.value_counts(cats))
+print()
+#Which side is closed can be changed by passing right=False :
+
+#You can also pass your own bin names by passing a list or array to the labels option
+group_names = ['Youth', 'YoungAdult', 'MiddleAged', 'Senior']
+print(pandas.cut(ages, bins, labels=group_names))
+print()
+
+#equal-length bins based on the minimum and maximum values in the data:
+data = numpy.random.rand(20)
+print(pandas.cut(data, 4, precision=2))
+
+#Since qcut uses sample quantiles instead, by definition you will obtain roughly equal-size bins:
+data = numpy.random.randn(1000) # Normally distributed
+cats = pandas.qcut(data, 4) # Cut into quartiles
+print(pandas.value_counts((cats)))
+print()
+
+#Detecting and Filtering Outliers
+data = DataFrame(numpy.random.randn(1000, 4))
+print(data.describe())
+
+#each row with at least one entry bigger than 3
+print(data[(numpy.abs(data) > 3).any(1)])
+print()
+
+#Permutation and Random Sampling
+df = DataFrame(numpy.arange(5 * 4).reshape(5, 4))
+per=numpy.random.permutation(5)
+print(df.take(per))
+print()
+
+#Computing Indicator/Dummy Variables:
+df = DataFrame({'key': ['b', 'b', 'a', 'c', 'a', 'b'],
+'data1': range(6)})
+print(df)
+#creates tabel with columsn a,b,c. if key in row is x, than values is 1, else 0
+print(pandas.get_dummies(df['key']))
+print()
+
+mnames = ['movie_id', 'title', 'genres']
+movies = pandas.read_table('/home/christoph/PycharmProjects/PythonForDataAnalysis/pydata-book-master/ch02/movielens/movies.dat', sep='::', header=None,
+names=mnames)
+
+generIt=(set(x.split("|")) for x in movies.genres)
+#print(*generIt)
+print(set.union(*generIt))
+
+
+#tring Object Methods
+#methods like split or join
+#In [216]: val.index(',')
+#val.find(':')
+#Note the difference between find and index is that index raises an exception if the string
+#isn’t found (versus returning -1):
+
+
+#Regular expressions
+#Creating a regex object with re.compile is highly recommended if you intend to apply
+#the same expression to many strings; doing so will save CPU cycles.
+
+#Vectorized string functions in pandas
+#advantage: this functions skip null values in the vector
+#examples: contains (checks for a pattern in each string of the vector)
